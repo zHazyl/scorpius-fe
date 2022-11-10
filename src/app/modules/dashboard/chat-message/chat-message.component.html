@@ -1,0 +1,43 @@
+<div class="row">
+  <div class="col-sm-12" *ngIf="message.sender !== currentUserId">
+    <div class="row">
+      <div class="col-sm-8 incoming-message-container">
+        <div class="row">
+          <div class="col-2 incoming-message-avatar">
+            <img src="/assets/img/user_avatar.svg" alt="">
+          </div>
+          <div class="col-10 incoming-message-content">
+            <div class="incoming-message-text">
+              <p class="shadow p-3 mb-5 rounded" style="overflow-wrap: break-word;">
+                {{message.content}}
+              </p>
+            </div>
+            <div class=" incoming-message-date">
+              <span>{{message.time | date: 'medium' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4"></div>
+    </div>
+  </div>
+  <div class="col-sm-12" *ngIf="message.sender === currentUserId">
+    <div class="row">
+      <div class="col-sm-4"></div>
+      <div class="col-sm-8 outgoing-message-container">
+        <div class="row">
+          <div class="col-12">
+            <div class="outgoing-message-text">
+              <p class="shadow p-3 mb-5 rounded" style="overflow-wrap: break-word;">
+                {{message.content}}
+              </p>
+            </div>
+            <div class=" outgoing-message-date">
+              <span>{{message.time | date: 'medium'}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

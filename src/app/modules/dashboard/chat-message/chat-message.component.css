@@ -1,0 +1,85 @@
+.incoming-message-container {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.incoming-message-content {
+  width: 90%;
+  float: left;
+  margin-left: 0;
+}
+
+.incoming-message-text {
+  text-align: left;
+}
+
+.incoming-message-text > p {
+  background: #ebebeb none repeat scroll 0 0;
+  padding: 7px;
+  width: auto;
+  border-radius: 10px;
+}
+
+.incoming-message-avatar {
+  width: 10%;
+  float: left;
+}
+
+.incoming-message-avatar > img {
+  max-width: 100%;
+}
+
+.incoming-message-date {
+  text-align: left;
+  margin-top: -30px;
+}
+
+.outgoing-message-container {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-left: 0;
+  float: right;
+}
+
+.outgoing-message-text {
+  text-align: left;
+}
+
+.outgoing-message-text > p {
+  background: #0275d8 none repeat scroll 0 0;
+  color: #ffffff;
+}
+
+.outgoing-message-text > p::-moz-selection { /* Code for Firefox */
+  color: #000000;
+  background: #0DEBFF;
+}
+
+.outgoing-message-text > p::selection {
+  color: #000000;
+  background: #0DEBFF;
+}
+
+
+.outgoing-message-date {
+  text-align: right;
+  margin-top: -30px;
+}
+
+
+@media (max-width: 992px) {
+  .incoming-message-avatar {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+
+  .outgoing-message-container {
+    margin-left: 140px
+  }
+
+  .incoming-message-container {
+    margin-right: 100px;
+  }
+}
