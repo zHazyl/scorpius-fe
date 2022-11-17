@@ -82,6 +82,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
       new Date(this.messageList[0].time).toISOString())
       .subscribe(result => {
         result.forEach(message => {
+          //unshift: add to begining
           this.messageList.unshift(message);
         });
       });
@@ -153,6 +154,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     }
   }
 
+  //websock protocol
   wsAfterConnected() {
     const that = this;
     this.wsMessagesService.ws.subscribe('/topic/' + this.authService.currentUserValue.id + '.messages',

@@ -13,7 +13,7 @@
   <div class="page-column mt-3">
     <form [formGroup]="loginForm" (ngSubmit)="loginProcess()">
       <div class="form-group">
-        <input type="text" class="form-control credential-input has-warning" id="login" placeholder="Login or email"
+        <input type="text" class="form-control credential-input has-warning" id="login" placeholder="Username"
                formControlName="login"/>
         <small *ngIf="login.invalid && (login.dirty || login.touched)" class="form-text text-danger validation-text">
           Login is required.
