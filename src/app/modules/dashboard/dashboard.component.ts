@@ -16,6 +16,7 @@ import {FriendChatService} from '../../shared/services/friend-chat.service';
 import {FriendChat} from '../../shared/models/friend-chat';
 import {ChatProfileService} from '../../shared/services/chat-profile.service';
 import {ChatMessagesStatus} from '../../shared/enum/chat-messages-status';
+import { AngularFireStorage } from 'angularfire2/storage';
 
 
 @Component({
@@ -51,6 +52,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   scrollDivMessagePosition: number = null;
   private shouldScrollToBottomAfterSendMessage = false;
   private audio = new Audio();
+  path: String = null;
 
   constructor(private authService: AuthService,
               private router: Router,
@@ -59,7 +61,8 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
               private userService: UserService,
               private friendRequestService: FriendRequestService,
               private chatProfileService: ChatProfileService,
-              private friendChatService: FriendChatService) {
+              private friendChatService: FriendChatService,
+              private af: AngularFireStorage) {
     wsMessagesService.connect(authService.getToken(), this);
     this.initAudioNotification();
   }
@@ -118,21 +121,37 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     if (messageContent.substr(messageContent.length - 1) === '\n') {
       messageContent = messageContent.slice(0, -1);
     }
-    if (messageContent !== '' || 0 !== messageContent.length) {
+    if (messageContent !== '' || 0 !== messageContent.length || this.path !== null) {
       const message = {
         friendChat: this.currentFriendChat.id,
         sender: this.authService.currentUserValue.id,
         recipient: this.currentFriendChat.recipient.userId,
         content: messageContent,
         status: ChatMessagesStatus.received,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
+        type: null
       } as ChatMessage;
-      this.messageList.push(message);
-      this.wsMessagesService.sendMessage(message);
-      this.inputMessage.nativeElement.value = '';
+      if (this.path !== null) {
+        message.type = 'image';
+        this.af.upload("/" + message.time, this.path).then(() => {
+          this.path = null;
+          this.messageList.push(message);
+          this.wsMessagesService.sendMessage(message);
+          this.inputMessage.nativeElement.value = '';
+  
+          this.isNewMessage.next(message);
+          this.shouldScrollToBottomAfterSendMessage = true;
+        })
+        return;
+      }
+      else {
+        this.messageList.push(message);
+        this.wsMessagesService.sendMessage(message);
+        this.inputMessage.nativeElement.value = '';
 
-      this.isNewMessage.next(message);
-      this.shouldScrollToBottomAfterSendMessage = true;
+        this.isNewMessage.next(message);
+        this.shouldScrollToBottomAfterSendMessage = true;
+      }
     } else {
       this.inputMessage.nativeElement.value = '';
     }
@@ -296,6 +315,11 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
 
   cancelDeleteFriend() {
     this.showDeleteFriendPrompt = false;
+  }
+
+  upload($event) {
+    this.path = $event.target.files[0];
+    $event.target.files.value = null
   }
 
 

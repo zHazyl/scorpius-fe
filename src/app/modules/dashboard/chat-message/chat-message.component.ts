@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ChatMessage} from '../../../shared/models/chat-message';
 import {AuthService} from '../../../shared/services/auth.service';
+import { AngularFireStorage } from 'angularfire2/storage';
 
 @Component({
   selector: 'app-chat-message',
@@ -17,7 +18,8 @@ export class ChatMessageComponent implements OnInit, AfterViewInit {
   @Output()
   afterRenderMessage: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService,
+    private af: AngularFireStorage) {
     this.currentUserId = authService.currentUserValue.id;
   }
 
@@ -26,6 +28,13 @@ export class ChatMessageComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.afterRenderMessage.emit();
+  }
+
+  getImage(time) {
+    time = time.replace(':','%3A');
+    time = time.replace('+00:00', 'Z');
+    let link = 'https://firebasestorage.googleapis.com/v0/b/cool-continuity-368410.appspot.com/o/'+ time + '?alt=media';
+    return link;
   }
 
 }

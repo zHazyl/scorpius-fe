@@ -10,8 +10,9 @@
         {{recipientUser.firstName + ' ' + recipientUser.lastName}}
       </div>
       <div class="col-12">
-        <span *ngIf="lastMessage.content; else noMessage" class="last-message">
+        <span *ngIf="lastMessage.content || lastMessage.type; else noMessage" class="last-message">
           {{lastMessage.content}}
+          <a style="color: #0DEBFF;">{{lastMessage.type}}</a>
         </span>
       </div>
       <ng-template #noMessage>

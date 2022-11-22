@@ -192,7 +192,7 @@
               </div>
               <div *ngIf="messageList.length !== 0">
                 <div *ngFor="let message of messageList">
-                  <app-chat-message [message]="message" (afterRenderMessage)="scrollChatMessage()"
+                  <app-chat-message [message]="message" (afterRenderMessage)="scrollChatMessage()" 
                                     #appMessage></app-chat-message>
                 </div>
               </div>
@@ -202,6 +202,10 @@
         <div class="row" style="height: 20%">
           <div class="col-sm-12 h-100" *ngIf="currentFriendChat !== null">
             <div class="row h-100 m-0" style="padding: 10px;">
+              <label>
+                <img src="/assets/img/upload.png" style="width: 20px;">
+                <input #myImg type="file" style="display: none;" (change)="upload($event)" accept="*.png.jpg">
+              </label>
               <div class="input-group mb-3">
               <textarea class="form-control input-message h-100 send-message-textarea"
                         placeholder="Type a message"
