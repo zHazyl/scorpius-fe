@@ -29,7 +29,7 @@
                 </span>
               </div>
               <div class="h-100"
-                   *ngIf="isActiveFriendRequestComponent || isActiveAddFriendComponent || isActiveSettingsComponent">
+                   *ngIf="isActiveFriendRequestComponent || isActiveAddFriendComponent || isActiveSettingsComponent || isActiveGroupComponent">
                 <div class="row h-100">
                   <div class="col-4 m-auto">
                     <input class="back-button" type="image" src="/assets/img/back.svg" (click)="showFriendComponent()"/>
@@ -41,6 +41,8 @@
                           *ngIf="isActiveAddFriendComponent">Invite new friend</span>
                     <span class="left-header-friend-request-text"
                           *ngIf="isActiveSettingsComponent">Settings</span>
+                    <span class="left-header-friend-request-text"
+                          *ngIf="isActiveGroupComponent">Your groups</span>
                   </div>
                 </div>
               </div>
@@ -64,6 +66,22 @@
             <img src="/assets/img/friend_theme.svg" style="max-width: 75%">
             <br><br>
             <span style="font-size: 20px"><b>You don't have any friends</b></span>
+          </div>
+          <!-- Group component-->
+          <div *ngIf="isActiveGroupComponent && groupsChats.length !== 0">
+            <div *ngFor="let groupChat of groupsChats">
+              <app-group-chat [conversation]="groupChat"
+                               [isNewMessage]="isNewMessage"
+                               [onClickComponent]="clickGroupComponent"
+                               (click)="enterGroupChat(groupChat.id)"
+                               [groupMembers]="getGroupMembers(groupChat.id)"></app-group-chat>
+            </div>
+          </div>
+          <div class="text-center" style="margin-top: 40%;"
+               *ngIf="isActiveGroupComponent && groupsChats.length === 0">
+            <img src="/assets/img/friend_theme.svg" style="max-width: 75%">
+            <br><br>
+            <span style="font-size: 20px"><b>You don't have any groups</b></span>
           </div>
           <!-- -->
           <!-- Friend request component-->
@@ -123,8 +141,20 @@
         <div class="col-sm-12">
           <div class="row h-100 mr-0">
             <div class="col-3 text-center w-50 m-auto">
+              <input class="left-buttons-menu-ico nav-button" type="image" src="/assets/img/user.png"
+                     (click)="showFriendComponent()"/>
+            </div>
+            <div class="col-3 text-center w-50 m-auto">
               <input class="left-buttons-menu-ico nav-button" type="image" src="/assets/img/add_friend.svg"
                      (click)="showAddFriendComponent()"/>
+            </div>
+            <div class="col-3 text-center w-50 m-auto">
+              <input class="left-buttons-menu-ico nav-button" type="image" src="/assets/img/people.png"
+                     (click)="showGroupComponent()"/>
+            </div>
+            <div class="col-3 text-center w-50 m-auto">
+              <input class="left-buttons-menu-ico nav-button" type="image" src="/assets/img/group.png"
+                     (click)="showGroupComponent()"/>
             </div>
             <div class="col-3 text-center w-50 m-auto">
               <input class="left-buttons-menu-ico nav-button" type="image" src="/assets/img/new_friends_request.svg"
@@ -144,7 +174,14 @@
     </div>
     <div class="col-sm-8 chat-box-right">
       <ng-container
-        *ngIf="!isActiveSettingsComponent; then chat; else settings">
+        *ngIf="isActiveSettingsComponent; then settings">
+      </ng-container>
+      <ng-container
+        *ngIf="isActiveFriendComponent; then chat">
+      </ng-container>
+
+      <ng-container
+      *ngIf="isActiveGroupComponent; then group">
       </ng-container>
       <ng-template #chat>
         <div style="height: 7%;">
@@ -203,7 +240,82 @@
           <div class="col-sm-12 h-100" *ngIf="currentFriendChat !== null">
             <div class="row h-100 m-0" style="padding: 10px;">
               <label>
-                <img src="/assets/img/upload.png" style="width: 20px;">
+                <img src="/assets/img/image.png" style="width: 25px;">
+                <input #myImg type="file" style="display: none;" (change)="upload($event)" accept="*.png.jpg">
+              </label>
+              <div class="input-group mb-3">
+              <textarea class="form-control input-message h-100 send-message-textarea"
+                        placeholder="Type a message"
+                        aria-label="Type a message" aria-describedby="basic-addon2" #inputMessage
+                        (keyup.enter)="sentMessage()"></textarea>
+                <div class="input-group-append">
+                  <input type="image" class="btn btn-outline-primary send-button" src="/assets/img/send.svg" width="50"
+                         (click)="sentMessage()">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #group>
+        <div style="height: 7%;">
+          <div class="row chat-current-person-container" *ngIf="currentGroupChat!==null">
+            <div class="col-2 m-auto text-right">
+              <img src="/assets/img/team.png" alt="">
+            </div>
+            <div class="col-8 m-auto text-left">
+              <span class="chat-current-person-text">
+                {{currentGroupChat.groupName}}
+              </span>
+            </div>
+            <div class="col-2 m-auto text-right">
+              <div class="btn-group dropleft">
+                <input class="dropdown-toggle nav-button" id="dropdownMenuButton" type="image"
+                       src="/assets/img/more.svg"
+                       alt=""
+                       style="max-width: 35px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <button class="dropdown-item" (click)="deleteFriendAlert()">Remove</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="height: 73%">
+          <div class="col-sm-12 messages-container" #groupMessageContainer (scroll)="onScrollMessages($event)">
+            <div class="row h-100" *ngIf="currentGroupChat === null">
+              <div class="col-12 text-center m-auto w-50">
+                <img src="/assets/img/begin_chat.svg" alt="" style="max-width: 50%;">
+                <br>
+                <br>
+                <span>Choice your group and start chatting.</span>
+              </div>
+            </div>
+            <div class="h-100" *ngIf="currentGroupChat !== null">
+              <div class="h-100" *ngIf="groupMessageList.length === 0">
+                <div class="row h-100">
+                  <div class="col-12 text-center m-auto w-50">
+                    <img src="/assets/img/no_message.svg" alt="" style="max-width: 50%;">
+                    <br>
+                    <span>Not found any message</span>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="groupMessageList.length !== 0">
+                <div *ngFor="let message of groupMessageList">
+                  <app-chat-message [message]="message" (afterRenderMessage)="scrollGroupChatMessage()" 
+                                    #appGroupMessage></app-chat-message>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="height: 20%">
+          <div class="col-sm-12 h-100" *ngIf="currentFriendChat !== null || currentGroupChat !== null">
+            <div class="row h-100 m-0" style="padding: 10px;">
+              <label>
+                <img src="/assets/img/image.png" style="width: 25px;">
                 <input #myImg type="file" style="display: none;" (change)="upload($event)" accept="*.png.jpg">
               </label>
               <div class="input-group mb-3">

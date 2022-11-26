@@ -22,6 +22,7 @@ export class FriendChatComponent implements OnInit {
   currentFriendChat: number;
   lastMessage = {} as ChatMessage;
   recipientUser = {} as User;
+  showLoadingSpinner = false;
 
   constructor(private messageService: ChatMessageService,
               private authService: AuthService,
@@ -29,12 +30,14 @@ export class FriendChatComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // this.showLoadingSpinner = true;
     this.getLastMessage();
     this.isNewMessage.subscribe(newMessage => {
       if (this.friendChat.id === newMessage.friendChat || this.friendChat.chatWith === newMessage.friendChat) {
         this.lastMessage = newMessage;
       }
     });
+    
     this.onClickComponent.subscribe(friendChatId => {
       this.currentFriendChat = friendChatId;
       this.markMessageAsDelivered();
@@ -43,8 +46,10 @@ export class FriendChatComponent implements OnInit {
   }
 
   private getRecipientUserInformation() {
+    // this.showLoadingSpinner = true;
     this.userService.getUser(this.friendChat.recipient.userId)
       .subscribe(recipient => {
+        this.showLoadingSpinner = false;
         this.recipientUser = recipient;
       });
   }
