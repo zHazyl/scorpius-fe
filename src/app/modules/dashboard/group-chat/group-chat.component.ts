@@ -20,10 +20,10 @@ export class GroupChatComponent implements OnInit {
   @Input('isNewMessage') isNewMessage: Subject<ChatMessage>;
   @Input('onClickComponent') onClickComponent: Subject<number>;
   @Input('conversation') groupChat: GroupChat;
-  @Input('groupMembers') groupMembers: GroupMember[] = [];
+  // @Input('groupMembers') groupMembers: GroupMember[] = [];
   currentGroupChat: number;
   lastMessage = {} as ChatMessage;
-  membersInfo: {[id: string]: IUser} = {};
+  // membersInfo: {[id: string]: IUser} = {};
   showLoadingSpinner = false;
 
   constructor(private messageService: ChatMessageService,
@@ -41,19 +41,19 @@ export class GroupChatComponent implements OnInit {
     });
     this.onClickComponent.subscribe(groupChatId => {
       this.currentGroupChat = groupChatId;
-      // this.markMessageAsDelivered();
+      this.markMessageAsDelivered();
     });
-    this.getGroupMembersInfo();
+    // this.getGroupMembersInfo();
   }
 
-  private getGroupMembersInfo() {
-    this.groupMembers.forEach(member => {
-      this.userService.getUser(member.member.userId)
-      .subscribe(userInfo => {
-        this.membersInfo[member.member.userId] = {name: userInfo.firstName + userInfo.lastName};
-      })
-    });
-  }
+  // private getGroupMembersInfo() {
+  //   this.groupMembers.forEach(member => {
+  //     this.userService.getUser(member.member.userId)
+  //     .subscribe(userInfo => {
+  //       this.membersInfo[member.member.userId] = {name: userInfo.firstName + userInfo.lastName};
+  //     })
+  //   });
+  // }
 
   showNotification(): boolean {
     if (this.currentGroupChat === this.groupChat.id) {
@@ -64,7 +64,7 @@ export class GroupChatComponent implements OnInit {
   }
 
   getLastMessage() {
-    // this.showLoadingSpinner = true;
+    this.showLoadingSpinner = true;
     this.messageService.getLastGroupMessages(1, this.groupChat.id).pipe(first())
     .subscribe(result => {
       if (result.length !== 0) {
@@ -74,8 +74,12 @@ export class GroupChatComponent implements OnInit {
     })
   }
 
-  getName(id: string) : string{
-    return this.membersInfo[id].name;
+  // getName(id: string) : string{
+  //   return this.membersInfo[id].name;
+  // }
+
+  markMessageAsDelivered() {
+      // this.lastMessage.status = "DELIVERIED";
   }
 
 }

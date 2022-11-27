@@ -46,7 +46,7 @@ export class FriendChatComponent implements OnInit {
   }
 
   private getRecipientUserInformation() {
-    // this.showLoadingSpinner = true;
+    this.showLoadingSpinner = true;
     this.userService.getUser(this.friendChat.recipient.userId)
       .subscribe(recipient => {
         this.showLoadingSpinner = false;

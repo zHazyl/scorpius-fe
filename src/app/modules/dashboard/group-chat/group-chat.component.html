@@ -1,6 +1,6 @@
 <div class="row chat"
   [ngClass]="{'active-chat': groupChat.id === currentGroupChat, 'inactive-chat': groupChat.id !== currentGroupChat}">
-  <div *ngIf="showNotification()"></div>
+  <div *ngIf="showNotification()" class="chat-notification"></div>
   <div class="col-2 text-center" style="position: relative; left: 5px">
     <img src="/assets/img/team.png" alt="" class="friend-ico">
   </div>

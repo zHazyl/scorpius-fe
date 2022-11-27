@@ -29,7 +29,7 @@
                 </span>
               </div>
               <div class="h-100"
-                   *ngIf="isActiveFriendRequestComponent || isActiveAddFriendComponent || isActiveSettingsComponent || isActiveGroupComponent">
+                   *ngIf="isActiveFriendRequestComponent || isActiveAddFriendComponent || isActiveSettingsComponent || isActiveGroupComponent || isActiveAddGroupComponent">
                 <div class="row h-100">
                   <div class="col-4 m-auto">
                     <input class="back-button" type="image" src="/assets/img/back.svg" (click)="showFriendComponent()"/>
@@ -43,6 +43,8 @@
                           *ngIf="isActiveSettingsComponent">Settings</span>
                     <span class="left-header-friend-request-text"
                           *ngIf="isActiveGroupComponent">Your groups</span>
+                    <span class="left-header-friend-request-text"
+                          *ngIf="isActiveAddGroupComponent">Add new group</span>
                   </div>
                 </div>
               </div>
@@ -74,7 +76,9 @@
                                [isNewMessage]="isNewMessage"
                                [onClickComponent]="clickGroupComponent"
                                (click)="enterGroupChat(groupChat.id)"
-                               [groupMembers]="getGroupMembers(groupChat.id)"></app-group-chat>
+                               ></app-group-chat>
+
+                               <!-- [groupMembers]="getGroupMembers(groupChat.id)" -->
             </div>
           </div>
           <div class="text-center" style="margin-top: 40%;"
@@ -127,6 +131,11 @@
             </div>
           </div>
           <!-- -->
+          <!--Add group chat component-->
+          <div *ngIf="isActiveAddGroupComponent">
+                       
+          </div>
+          <!--  -->
           <!-- Settings component -->
           <div class="text-center" style="margin-top: 40%;"
                *ngIf="isActiveSettingsComponent">
@@ -154,7 +163,7 @@
             </div>
             <div class="col-3 text-center w-50 m-auto">
               <input class="left-buttons-menu-ico nav-button" type="image" src="/assets/img/group.png"
-                     (click)="showGroupComponent()"/>
+                     (click)="showAddGroupComponent()"/>
             </div>
             <div class="col-3 text-center w-50 m-auto">
               <input class="left-buttons-menu-ico nav-button" type="image" src="/assets/img/new_friends_request.svg"
@@ -304,7 +313,8 @@
               </div>
               <div *ngIf="groupMessageList.length !== 0">
                 <div *ngFor="let message of groupMessageList">
-                  <app-chat-message [message]="message" (afterRenderMessage)="scrollGroupChatMessage()" 
+                  <app-chat-message [message]="message"
+                  (afterRenderMessage)="scrollGroupChatMessage()" 
                                     #appGroupMessage></app-chat-message>
                 </div>
               </div>

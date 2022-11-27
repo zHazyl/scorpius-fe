@@ -1,3 +1,6 @@
+/* @import "../node_modules/bootstrap/scss/bootstrap";
+@import "../node_modules/bootstrap-select/dist/css/bootstrap-select.css"; */
+
 .notification, .notification-hide {
   position: fixed;
   height: 25px;
@@ -140,7 +143,7 @@
 }
 
 .chat-box-left-list {
-  height: 80%;
+  height: 74%;
 
 }
 
