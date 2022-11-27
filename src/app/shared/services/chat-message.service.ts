@@ -20,6 +20,14 @@ export class ChatMessageService {
       this.chatMessageResource + '?' + params.toString());
   }
 
+  getLastGroupMessages(size, groupId) {
+    const params = new HttpParams()
+    .set('group_id', groupId)
+    .set('size', size);
+    return this.http.get<ChatMessage[]>(environment.baseApiUrl + environment.chatMessagesServiceResource + 
+      this.chatMessageResource + '/group?' + params.toString());
+  }
+
   getPreviousMessages(size, friendChatId, friendChatWithId, from) {
     const params = new HttpParams()
       .set('friend_chat_id1', friendChatId)
@@ -29,6 +37,16 @@ export class ChatMessageService {
 
     return this.http.get<ChatMessage[]>(environment.baseApiUrl + environment.chatMessagesServiceResource +
       this.chatMessageResource + '?' + params.toString());
+  }
+
+  getPreviousGroupMessages(size, groupId, from) {
+    const params = new HttpParams()
+    .set('group_id', groupId)
+    .set('from', from)
+    .set('size', size);
+
+    return this.http.get<ChatMessage[]>(environment.baseApiUrl + environment.chatMessagesServiceResource +
+      this.chatMessageResource + '/group?' + params.toString());
   }
 
   markMessageAsDelivered(friendChatId) {

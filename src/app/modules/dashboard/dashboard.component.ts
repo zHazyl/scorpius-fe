@@ -17,6 +17,10 @@ import {FriendChat} from '../../shared/models/friend-chat';
 import {ChatProfileService} from '../../shared/services/chat-profile.service';
 import {ChatMessagesStatus} from '../../shared/enum/chat-messages-status';
 import { AngularFireStorage } from 'angularfire2/storage';
+import { GroupChat } from 'src/app/shared/models/group-chat';
+import { GroupChatService } from 'src/app/shared/services/group-chat.service';
+import { GroupMemberService } from 'src/app/shared/services/group-member.service';
+import {FormControl} from '@angular/forms';
 
 
 @Component({
@@ -30,10 +34,13 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   @ViewChild('friendCode') friendCode: ElementRef;
   @ViewChild('notification') notification: ElementRef;
   @ViewChild('messageContainer') messageContainer: ElementRef;
+  @ViewChild('groupMessageContainer') groupMessageContainer: ElementRef;
   @ViewChild('appMessage') appMessage: ElementRef;
+  @ViewChild('appGroupMessage') appGroupMessage: ElementRef;
 
   isNewMessage: Subject<ChatMessage> = new Subject();
   clickFriendComponent: Subject<number> = new Subject();
+  clickGroupComponent: Subject<number> = new Subject();
   currentUser = {} as User;
   currentUserChatProfile = {} as ChatProfile;
   receivedFriendRequests: FriendRequest[] = [];
@@ -41,18 +48,25 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   currentRecipientUser = {} as User;
   notificationMessage = '';
   isActiveFriendComponent = true;
+  isActiveGroupComponent = false;
   isActiveFriendRequestComponent = false;
   isActiveAddFriendComponent = false;
+  isActiveAddGroupComponent = false;
   isActiveSettingsComponent = false;
   showDeleteFriendPrompt = false;
   isNotificationVisible = false;
   friendsChats: FriendChat[] = [];
+  groupsChats: GroupChat[] = [];
   messageList: ChatMessage[] = [];
+  groupMessageList: ChatMessage[] = []
   currentFriendChat: FriendChat = null;
+  currentGroupChat: GroupChat = null;
   scrollDivMessagePosition: number = null;
   private shouldScrollToBottomAfterSendMessage = false;
   private audio = new Audio();
   path: String = null;
+  toppings = new FormControl('');
+  toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
 
   constructor(private authService: AuthService,
               private router: Router,
@@ -62,8 +76,14 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
               private friendRequestService: FriendRequestService,
               private chatProfileService: ChatProfileService,
               private friendChatService: FriendChatService,
+              private groupChatService: GroupChatService,
+              private groupMemberService: GroupMemberService,
               private af: AngularFireStorage) {
-    wsMessagesService.connect(authService.getToken(), this);
+    this.groupChatService.getGroupsChats().pipe(first())
+    .subscribe(result => {
+      this.groupsChats = result;
+      wsMessagesService.connect(authService.getToken(), this);
+    })
     this.initAudioNotification();
   }
 
@@ -80,6 +100,13 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
       });
   }
 
+  private getUserGroupsChats() {
+    this.groupChatService.getGroupsChats().pipe(first())
+    .subscribe(result => {
+      this.groupsChats = result;
+    })
+  }
+
   getPreviousMessages() {
     this.chatMessageService.getPreviousMessages(10, this.currentFriendChat.id, this.currentFriendChat.chatWith,
       new Date(this.messageList[0].time).toISOString())
@@ -87,6 +114,17 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
         result.forEach(message => {
           //unshift: add to begining
           this.messageList.unshift(message);
+        });
+      });
+  }
+
+  getPreviousGroupMessages() {
+    this.chatMessageService.getPreviousGroupMessages(10, this.currentGroupChat.id,
+      new Date(this.groupMessageList[0].time).toISOString())
+      .subscribe(result => {
+        result.forEach(message => {
+          //unshift: add to begining
+          this.groupMessageList.unshift(message);
         });
       });
   }
@@ -106,6 +144,21 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.clickFriendComponent.next(friendChatId);
   }
 
+  enterGroupChat(groupChatId: number) {
+    this.currentGroupChat = this.groupsChats.filter(value => value.id === groupChatId)[0];
+    this.getInitialGroupMessages(this.currentGroupChat.id);
+    this.clickGroupComponent.next(groupChatId);
+  }
+
+  // getGroupMembers(groupId: number): GroupMember[] {
+  //   var groupMembers: GroupChat[] = [];
+  //   this.groupMemberService.getGroupMembers(groupId).pipe(first())
+  //   .subscribe(result => {
+  //     groupMembers = result;
+  //   })
+  //   return groupMembers;
+  // }
+
 
   getInitialMessages(friendChatId: number, friendChatWithId: number) {
     this.chatMessageService.getLastMessages(10, friendChatId, friendChatWithId).pipe(first())
@@ -115,17 +168,37 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
       });
   }
 
+  getInitialGroupMessages(groupId: number) {
+    this.chatMessageService.getLastGroupMessages(10, groupId).pipe(first())
+    .subscribe(lastChatMessages => {
+      lastChatMessages.sort((m1, m2) => m1.time.localeCompare(m2.time));
+      this.groupMessageList = lastChatMessages;
+    })
+  }
+
   sentMessage() {
     let messageContent = this.inputMessage.nativeElement.value;
     // delete EOL
     if (messageContent.substr(messageContent.length - 1) === '\n') {
       messageContent = messageContent.slice(0, -1);
     }
+    var friendchat: Number;
+    var recipient: String;
+
+    if (this.isActiveFriendComponent) {
+      friendchat = this.currentFriendChat.id;
+      recipient = this.currentFriendChat.recipient.userId;
+    }
+    if (this.isActiveGroupComponent) {
+      friendchat = -1;
+      recipient = this.currentGroupChat.id.toString();
+    }
+
     if (messageContent !== '' || 0 !== messageContent.length || this.path !== null) {
       const message = {
-        friendChat: this.currentFriendChat.id,
+        friendChat: friendchat,
         sender: this.authService.currentUserValue.id,
-        recipient: this.currentFriendChat.recipient.userId,
+        recipient: recipient,
         content: messageContent,
         status: ChatMessagesStatus.received,
         time: new Date().toISOString(),
@@ -135,7 +208,12 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
         message.type = 'image';
         this.af.upload("/" + message.time, this.path).then(() => {
           this.path = null;
-          this.messageList.push(message);
+          if (this.isActiveFriendComponent) {
+            this.messageList.push(message);
+          }
+          if (this.isActiveGroupComponent) {
+            this.groupMessageList.push(message);
+          }
           this.wsMessagesService.sendMessage(message);
           this.inputMessage.nativeElement.value = '';
   
@@ -172,6 +250,20 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
       this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
     }
   }
+  scrollGroupChatMessage() {
+    // scroll to bottom after send chat-message
+    if (this.shouldScrollToBottomAfterSendMessage) {
+      this.groupMessageContainer.nativeElement.scrollTop = this.groupMessageContainer.nativeElement.scrollHeight;
+      this.shouldScrollToBottomAfterSendMessage = false;
+      return;
+    }
+
+    if (this.scrollDivMessagePosition !== null && this.scrollDivMessagePosition < this.groupMessageContainer.nativeElement.scrollHeight) {
+      this.groupMessageContainer.nativeElement.scrollTop = this.groupMessageContainer.nativeElement.scrollHeight - this.scrollDivMessagePosition;
+    } else {
+      this.groupMessageContainer.nativeElement.scrollTop = this.groupMessageContainer.nativeElement.scrollHeight;
+    }
+  }
 
   //websock protocol
   wsAfterConnected() {
@@ -195,6 +287,30 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
         }
         that.isNewMessage.next(chatMessage);
       });
+      this.groupsChats.forEach(group => {
+
+        this.wsMessagesService.ws.subscribe('/topic/' + group.id + '.messages',
+        message => {
+          let chatMessage: ChatMessage;
+          chatMessage = JSON.parse(message.body);
+          chatMessage.status = ChatMessagesStatus.delivered;
+          that.groupMessageList.push(chatMessage);
+          if (that.currentGroupChat !== null && chatMessage.recipient === that.currentGroupChat.id.toString()) {
+              // that.chatMessageService.markMessageAsDelivered(that.currentFriendChat.chatWith).subscribe(result => {
+    
+              // });
+          } else {
+            that.audio.play()
+              .then(_ => {
+                // sound effect started
+              }).catch(error => {
+              // empty
+            });
+          }
+          that.isNewMessage.next(chatMessage);
+        });
+
+      })
   }
 
   showFriendRequestComponent() {
@@ -205,6 +321,8 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
         this.isActiveFriendComponent = false;
         this.isActiveAddFriendComponent = false;
         this.isActiveSettingsComponent = false;
+        this.isActiveGroupComponent = false;
+        this.isActiveAddGroupComponent = false;
       });
   }
 
@@ -213,9 +331,26 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.isActiveFriendRequestComponent = false;
     this.isActiveAddFriendComponent = false;
     this.isActiveSettingsComponent = false;
+    this.isActiveGroupComponent = false;
+    this.isActiveAddGroupComponent = false;
     this.getUserFriendsChats();
     this.getUserInformation();
     this.getUserChatProfile();
+    // this.currentFriendChat = null;
+    this.currentGroupChat = null;
+  }
+
+  showGroupComponent() {
+    this.isActiveGroupComponent = true;
+    this.isActiveFriendComponent = false;
+    this.isActiveFriendRequestComponent = false;
+    this.isActiveAddFriendComponent = false;
+    this.isActiveSettingsComponent = false;
+    this.isActiveAddGroupComponent = false;
+    this.getUserGroupsChats();
+    // this.currentGroupChat = null;
+    this.currentFriendChat = null
+
   }
 
   showAddFriendComponent() {
@@ -226,7 +361,21 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
         this.isActiveFriendRequestComponent = false;
         this.isActiveFriendComponent = false;
         this.isActiveSettingsComponent = false;
+        this.isActiveGroupComponent = false;
+        this.isActiveAddGroupComponent = false;
       });
+  }
+
+  showAddGroupComponent() {
+    this.isActiveAddGroupComponent = true;
+    this.isActiveAddFriendComponent = false;
+    this.isActiveFriendRequestComponent = false;
+    this.isActiveFriendComponent = false;
+    this.isActiveSettingsComponent = false;
+    this.isActiveGroupComponent = false;
+    this.getUserFriendsChats();
+    this.getUserInformation();
+    this.getUserChatProfile();
   }
 
   showSettingsComponent() {
@@ -235,6 +384,8 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.isActiveAddFriendComponent = false;
     this.isActiveSettingsComponent = true;
     this.currentFriendChat = null;
+    this.isActiveGroupComponent = false;
+    this.isActiveAddGroupComponent = false;
   }
 
   private getUserInformation() {
@@ -242,6 +393,8 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
       this.currentUser = user;
     });
   }
+
+
 
   private getUserChatProfile() {
     this.chatProfileService.getChatProfile(this.authService.currentUserValue.id)
@@ -295,7 +448,10 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     if (event.target.scrollTop === 0) {
       // @ts-ignore
       this.scrollDivMessagePosition = event.target.scrollHeight;
-      this.getPreviousMessages();
+      if (this.isActiveFriendComponent)
+        this.getPreviousMessages();
+      else
+        this.getPreviousGroupMessages();
     }
   }
 
@@ -319,7 +475,8 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
 
   upload($event) {
     this.path = $event.target.files[0];
-    $event.target.files.value = null
+    $event.target.files.value = null;
+    this.sentMessage();
   }
 
 

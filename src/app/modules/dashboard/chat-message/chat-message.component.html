@@ -6,8 +6,11 @@
           <div class="col-2 incoming-message-avatar">
             <img src="/assets/img/user_avatar.svg" alt="">
           </div>
-          <img class="col-12" [src]="getImage(message.time)" *ngIf="message.type === 'image'">
+          <div class="col-12 incoming-message-content">
+            <img class="col-12" [src]="getImage(message.time)" *ngIf="message.type === 'image'">
+          </div>
           <div class="col-12 incoming-message-content" *ngIf="message.content !== null && message.content !== ''">
+            <p *ngIf="message.friendChat === -1"  class="font-weight-bold">{{name}}</p>
             <div class="incoming-message-text">
               <p class="shadow p-3 mb-5 rounded" style="overflow-wrap: break-word;">
                 {{message.content}}

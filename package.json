@@ -24,6 +24,7 @@
     "@types/jquery": "^3.5.5",
     "angularfire2": "^5.4.2",
     "bootstrap": "^4.5.3",
+    "bootstrap-select": "^1.13.18",
     "core-js": "^3.6.4",
     "firebase": "^7.24.0",
     "jquery": "^3.5.1",
