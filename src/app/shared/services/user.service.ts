@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
 import {User} from '../models/user';
+import { Observable } from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
@@ -18,6 +19,11 @@ export class UserService {
   }
 
   getUser(userId: string) {
+    return this.http.get<User>(environment.baseApiUrl + environment.authServiceResource +
+      this.userResource + '/' + userId);
+  }
+
+  getUserObs(userId: string): Observable<any> {
     return this.http.get<User>(environment.baseApiUrl + environment.authServiceResource +
       this.userResource + '/' + userId);
   }

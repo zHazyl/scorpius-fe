@@ -200,6 +200,20 @@
   width: 300px;
 }
 
+.members-alert {
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  top: 25%;
+  position: absolute;
+  z-index: 1000;
+  height: auto;
+  max-height: fit-content;
+  width: auto;
+  max-width: fit-content;
+}
+
+
 @media (max-width: 576px) {
   :host > .container {
     padding-top: 0;

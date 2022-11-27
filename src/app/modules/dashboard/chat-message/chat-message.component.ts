@@ -42,9 +42,10 @@ export class ChatMessageComponent implements OnInit, AfterViewInit {
     return link;
   }
   getUserName(id: string){
-    this.userService.getUser(id).subscribe(user => {
-      this.name =  user.firstName + ' ' + user.lastName;
-    });
+    if (this.message.sender != this.message.recipient)
+      this.userService.getUser(id).subscribe(user => {
+        this.name =  user.firstName + ' ' + user.lastName;
+      });
   }
 
 }

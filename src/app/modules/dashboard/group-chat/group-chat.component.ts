@@ -36,7 +36,6 @@ export class GroupChatComponent implements OnInit {
     this.isNewMessage.subscribe(newMessage => {
       if (this.groupChat.id.toString() === newMessage.recipient) {
         this.lastMessage = newMessage;
-
       }
     });
     this.onClickComponent.subscribe(groupChatId => {
@@ -71,6 +70,8 @@ export class GroupChatComponent implements OnInit {
         this.showLoadingSpinner = false;
         this.lastMessage = result[0];
       }
+    }, erroObject => {
+      this.showLoadingSpinner = false
     })
   }
 

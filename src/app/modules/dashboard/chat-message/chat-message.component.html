@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" *ngIf="message.sender != message.recipient">
   <div class="col-sm-12" *ngIf="message.sender !== currentUserId">
     <div class="row">
       <div class="col-sm-8 incoming-message-container">
@@ -7,10 +7,10 @@
             <img src="/assets/img/user_avatar.svg" alt="">
           </div>
           <div class="col-12 incoming-message-content">
+            <p *ngIf="message.friendChat === -1"  class="font-weight-bold">{{name}}</p>
             <img class="col-12" [src]="getImage(message.time)" *ngIf="message.type === 'image'">
           </div>
           <div class="col-12 incoming-message-content" *ngIf="message.content !== null && message.content !== ''">
-            <p *ngIf="message.friendChat === -1"  class="font-weight-bold">{{name}}</p>
             <div class="incoming-message-text">
               <p class="shadow p-3 mb-5 rounded" style="overflow-wrap: break-word;">
                 {{message.content}}
@@ -44,5 +44,10 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+<div class="row" *ngIf="message.sender == message.recipient && message.friendChat == -1">
+  <div class="alert" role="alert">
+    {{message.content}}
   </div>
 </div>

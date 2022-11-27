@@ -11,6 +11,7 @@ import {AccountComponent} from './settings/account/account.component';
 import {ChangePasswordComponent} from './settings/change-password/change-password.component';
 import {NewFriendRequestComponent} from './new-friend-request/new-friend-request.component';
 import { GroupChatComponent } from './group-chat/group-chat.component';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { GroupChatComponent } from './group-chat/group-chat.component';
     CommonModule,
     FormsModule,
     RouterModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgMultiSelectDropDownModule
   ]
 })
 export class DashboardModule {

@@ -11,6 +11,7 @@ import {DashboardModule} from './modules/dashboard/dashboard.module';
 import {TokenInterceptor} from './shared/helpers/token.interceptor';
 import { AngularFireStorageModule } from 'angularfire2/storage'
 import { AngularFireModule } from 'angularfire2';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { AngularFireModule } from 'angularfire2';
       appId: "1:825023183913:web:3ed2d924f853abfce3f038"
     
     }),
-    AngularFireStorageModule
+    AngularFireStorageModule,
+    NgMultiSelectDropDownModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true}

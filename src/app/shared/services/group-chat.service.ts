@@ -17,8 +17,10 @@ export class GroupChatService {
     return this.http.get<GroupChat[]>(environment.baseApiUrl + environment.chatServiceResource + this.groupChatResource);
   }
 
-  createGroupChat(group: GroupChat) {
-    return this.http.post(environment.baseApiUrl + environment.chatServiceResource + this.groupChatResource, JSON.stringify(group));
+  createGroupChat(group: GroupChat) : Observable<any> {
+    return this.http.post(environment.baseApiUrl + environment.chatServiceResource + this.groupChatResource, {
+      "groupName": group.groupName
+    });
   }
 
 //   deleteGroup(chatGroupId, chatGroupWithId) {

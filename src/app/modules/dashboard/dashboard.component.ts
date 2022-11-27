@@ -20,8 +20,8 @@ import { AngularFireStorage } from 'angularfire2/storage';
 import { GroupChat } from 'src/app/shared/models/group-chat';
 import { GroupChatService } from 'src/app/shared/services/group-chat.service';
 import { GroupMemberService } from 'src/app/shared/services/group-member.service';
-import {FormControl} from '@angular/forms';
-
+import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { GroupMember } from 'src/app/shared/models/group-member';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,6 +32,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
 
   @ViewChild('inputMessage') inputMessage: ElementRef;
   @ViewChild('friendCode') friendCode: ElementRef;
+  @ViewChild('groupName') groupName: ElementRef;
   @ViewChild('notification') notification: ElementRef;
   @ViewChild('messageContainer') messageContainer: ElementRef;
   @ViewChild('groupMessageContainer') groupMessageContainer: ElementRef;
@@ -54,9 +55,13 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   isActiveAddGroupComponent = false;
   isActiveSettingsComponent = false;
   showDeleteFriendPrompt = false;
+  showIsAdminPrompt = false;
+  showMembersGroup = false;
+  showAddMembers =false;
   isNotificationVisible = false;
   friendsChats: FriendChat[] = [];
   groupsChats: GroupChat[] = [];
+  membersGroup: GroupMember[] = [];
   messageList: ChatMessage[] = [];
   groupMessageList: ChatMessage[] = []
   currentFriendChat: FriendChat = null;
@@ -65,8 +70,9 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   private shouldScrollToBottomAfterSendMessage = false;
   private audio = new Audio();
   path: String = null;
-  toppings = new FormControl('');
-  toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
+  dropdownList: any[] = [];
+  dropdownSettings: IDropdownSettings = {};
+  selectedItems = [];
 
   constructor(private authService: AuthService,
               private router: Router,
@@ -87,10 +93,39 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.initAudioNotification();
   }
 
+
   ngOnInit(): void {
     this.getUserFriendsChats();
     this.getUserInformation();
     this.getUserChatProfile();
+    this.getUserFriendInfo();
+
+    this.dropdownSettings = {
+      idField: 'item_id',
+      textField: 'item_text',
+      allowSearchFilter: true
+    };
+  }
+
+  onItemSelect(item: any) {
+      console.log('onItemSelect', item);
+      this.selectedItems.push(item);
+      console.log(this.selectedItems);
+      if (!this.showMembersGroup && !this.showAddMembers)
+        this.showIsAdminPrompt = true;
+  }
+  onItemDeSelect(item: any) {
+      this.selectedItems = this.selectedItems.filter(i => i.item_id != item.item_id)
+      console.log('onItemDeSelect', item);
+      console.log(this.selectedItems);
+  }
+  onSelectAll(items: any) {
+      console.log('onSelectAll', items);
+      this.selectedItems = items;
+  }
+  onUnSelectAll() {
+      console.log('onUnSelectAll fires');
+      this.selectedItems = [];
   }
 
   private getUserFriendsChats() {
@@ -98,6 +133,46 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
       .subscribe(result => {
         this.friendsChats = result;
       });
+  }
+
+  private getUserFriendInfo() {
+    const userLoads = this.friendsChats.map(friend => {
+      const id = friend.recipient.userId;
+      return this.loadUserInfo(id);
+    });
+    Promise.all(userLoads).then(result => {
+      console.log(result)
+      this.dropdownList = result;
+    });
+    
+  }
+
+  private getUserMembersInfo() {
+    const userLoads = this.membersGroup.map(member => {
+      const id = member.member.userId;
+      return this.loadUserInfo(id);
+    });
+    Promise.all(userLoads).then(result => {
+      console.log(result)
+      this.dropdownList = result;
+    });
+    
+  }
+
+  private loadUserInfo(id: string): any {
+    return new Promise((resolve, reject) => {
+      this.userService.getUserObs(id).subscribe(result => {
+        resolve({item_id: {id: id, isAdmin: false}, item_text: result.firstName + ' ' +  result.lastName});
+      })
+    })
+  }
+
+  getUserName(id: string): string {
+    var name: string
+    this.userService.getUser(id).pipe(first()).subscribe(user => {
+      name = user.firstName + ' ' + user.lastName;
+    });
+    return name;
   }
 
   private getUserGroupsChats() {
@@ -212,7 +287,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
             this.messageList.push(message);
           }
           if (this.isActiveGroupComponent) {
-            this.groupMessageList.push(message);
+            // this.groupMessageList.push(message);
           }
           this.wsMessagesService.sendMessage(message);
           this.inputMessage.nativeElement.value = '';
@@ -350,7 +425,11 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.getUserGroupsChats();
     // this.currentGroupChat = null;
     this.currentFriendChat = null
-
+    this.getUserFriendsChats();
+    // this.getUserInformation();
+    // this.getUserChatProfile();
+    this.getUserFriendInfo();
+    this.selectedItems = [];
   }
 
   showAddFriendComponent() {
@@ -374,8 +453,10 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.isActiveSettingsComponent = false;
     this.isActiveGroupComponent = false;
     this.getUserFriendsChats();
-    this.getUserInformation();
-    this.getUserChatProfile();
+    // this.getUserInformation();
+    // this.getUserChatProfile();
+    this.getUserFriendInfo();
+    this.selectedItems = [];
   }
 
   showSettingsComponent() {
@@ -420,6 +501,90 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     }
   }
 
+  createGroup() {
+    let groupName = this.groupName.nativeElement.value;
+    var members = []
+    if (groupName.length !== 0) {
+      this.groupChatService.createGroupChat({groupName: groupName}).subscribe(result => {
+        // console.log(this.selectedItems);
+        
+        this.selectedItems.forEach(item => {
+          members.push(
+            {        
+              "group": {
+                "id": result.id
+              },
+              "member": {
+                  "userId": item.item_id.id
+              },
+              "admin": item.item_id.isAdmin});
+        })
+        // console.log(JSON.stringify(members))
+        this.groupMemberService.addMembers(members).subscribe(result => {
+          console.log(result);
+        })
+        this.wsMessagesService.sendMessage(
+          {
+          friendChat: -1,
+          sender: result.id.toString(),
+          recipient: result.id.toString(),
+          content: 'New group',
+          status: ChatMessagesStatus.received,
+          time: new Date().toISOString(),
+          type: null
+        })
+        this.showNotificationMessage('We created group');
+      }, errorObject => {
+        if (errorObject.status === 404 || errorObject.status === 400 || errorObject.status === 409) {
+          this.showNotificationMessage(errorObject.error.detail);
+        }
+      })
+    }
+    // this.onUnSelectAll();
+  }
+
+
+  addGroupMembers() {
+    var members = []
+    this.selectedItems.forEach(item => {
+      members.push(
+        {        
+          "group": {
+            "id": this.currentGroupChat.id
+          },
+          "member": {
+              "userId": item.item_id.id
+          },
+          "admin": item.item_id.isAdmin});
+    })
+    // console.log(JSON.stringify(members))
+    this.groupMemberService.addMembers(members).subscribe(result => {
+      console.log(result);
+      this.showNotificationMessage("Added");
+      this.selectedItems.forEach(item => {
+        this.wsMessagesService.sendMessage(
+          {
+          friendChat: -1,
+          sender: this.currentGroupChat.id.toString(),
+          recipient: this.currentGroupChat.id.toString(),
+          content: item.item_text + ' joined',
+          status: ChatMessagesStatus.received,
+          time: new Date().toISOString(),
+          type: null
+        })        
+      })
+    }, errorObject => {
+      if (errorObject.status === 404 || errorObject.status === 400 || errorObject.status === 409) {
+        this.showNotificationMessage(errorObject.error.detail);
+      }
+    })
+  }
+
+  deleteGroupMembers() {
+
+  }
+
+
   initAudioNotification() {
     this.audio.src = '../../../assets/audio/notification_sound.mp3';
     this.audio.load();
@@ -459,6 +624,28 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.showDeleteFriendPrompt = true;
   }
 
+  membersAlert() {
+    this.groupMemberService.getGroupMembers(this.currentGroupChat.id).subscribe(result => {
+
+      this.dropdownList = [];
+      this.onUnSelectAll();
+      this.membersGroup = result;
+      this.getUserMembersInfo();
+      this.showMembersGroup = true;
+    }, errorObject => {
+      if (errorObject.status === 404 || errorObject.status === 400 || errorObject.status === 409) {
+        this.showNotificationMessage(errorObject.error.detail);
+      }
+    })
+  }
+
+  addMembersAlert() {
+    this.dropdownList = [];
+    this.onUnSelectAll();
+    this.getUserFriendInfo();
+    this.showAddMembers = true;
+  }
+
   deleteFriend() {
     this.friendChatService.deleteFriend(this.currentFriendChat.id, this.currentFriendChat.chatWith)
       .subscribe(result => {
@@ -471,6 +658,21 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
 
   cancelDeleteFriend() {
     this.showDeleteFriendPrompt = false;
+  }
+
+  notAdmin() {
+    this.selectedItems[this.selectedItems.length - 1].item_id.isAdmin = false;
+    this.showIsAdminPrompt = false;
+  }
+
+  closeMembersGroup() {
+    this.showMembersGroup = false;
+    this.showAddMembers = false;
+  }
+
+  isAdmin() {
+    this.selectedItems[this.selectedItems.length - 1].item_id.isAdmin = true;
+    this.showIsAdminPrompt = false;
   }
 
   upload($event) {

@@ -21,3 +21,5 @@ html, body, app-root {
 ::-webkit-scrollbar-thumb:hover {
   background: #0064FF;
 }
+
+@import "~@ng-select/ng-select/themes/default.theme.css";  

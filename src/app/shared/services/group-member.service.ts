@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import { GroupMember } from "../models/group-member";
 
@@ -11,12 +12,12 @@ export class GroupMemberService {
 
     }
 
-    getGroupMembers(id: number) {
-        return this.http.get<GroupMember[]>(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource + '/' + id);
+    getGroupMembers(id: number) : Observable<any> {
+        return this.http.get(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource + '/' + id);
     }
 
     addMembers(members: GroupMember[]) {
-        return this.http.post<GroupMember[]>(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource, JSON.stringify(members))
+        return this.http.post<GroupMember[]>(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource, members)
     }
 
 }
