@@ -362,30 +362,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
         }
         that.isNewMessage.next(chatMessage);
       });
-      this.groupsChats.forEach(group => {
 
-        this.wsMessagesService.ws.subscribe('/topic/' + group.id + '.messages',
-        message => {
-          let chatMessage: ChatMessage;
-          chatMessage = JSON.parse(message.body);
-          chatMessage.status = ChatMessagesStatus.delivered;
-          that.groupMessageList.push(chatMessage);
-          if (that.currentGroupChat !== null && chatMessage.recipient === that.currentGroupChat.id.toString()) {
-              // that.chatMessageService.markMessageAsDelivered(that.currentFriendChat.chatWith).subscribe(result => {
-    
-              // });
-          } else {
-            that.audio.play()
-              .then(_ => {
-                // sound effect started
-              }).catch(error => {
-              // empty
-            });
-          }
-          that.isNewMessage.next(chatMessage);
-        });
-
-      })
   }
 
   showFriendRequestComponent() {
@@ -430,6 +407,31 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     // this.getUserChatProfile();
     this.getUserFriendInfo();
     this.selectedItems = [];
+    const that = this;
+    this.groupsChats.forEach(group => {
+
+      this.wsMessagesService.ws.subscribe('/topic/' + group.id + '.messages',
+      message => {
+        let chatMessage: ChatMessage;
+        chatMessage = JSON.parse(message.body);
+        chatMessage.status = ChatMessagesStatus.delivered;
+        that.groupMessageList.push(chatMessage);
+        if (that.currentGroupChat !== null && chatMessage.recipient === that.currentGroupChat.id.toString()) {
+            // that.chatMessageService.markMessageAsDelivered(that.currentFriendChat.chatWith).subscribe(result => {
+  
+            // });
+        } else {
+          that.audio.play()
+            .then(_ => {
+              // sound effect started
+            }).catch(error => {
+            // empty
+          });
+        }
+        that.isNewMessage.next(chatMessage);
+      });
+
+    })
   }
 
   showAddFriendComponent() {
