@@ -103,7 +103,8 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     this.dropdownSettings = {
       idField: 'item_id',
       textField: 'item_text',
-      allowSearchFilter: true
+      allowSearchFilter: true,
+      limitSelection: Number.MAX_VALUE
     };
   }
 
@@ -362,7 +363,53 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
         }
         that.isNewMessage.next(chatMessage);
       });
+      this.wsMessagesService.ws.subscribe('/topic/' + this.authService.currentUserValue.id + '.group',
+      groupId => {
+        this.wsMessagesService.ws.subscribe('/topic/' + groupId + '.messages',
+        message => {
+          let chatMessage: ChatMessage;
+          chatMessage = JSON.parse(message.body);
+          chatMessage.status = ChatMessagesStatus.delivered;
+          that.groupMessageList.push(chatMessage);
+          if (that.currentGroupChat !== null && chatMessage.recipient === that.currentGroupChat.id.toString()) {
+              // that.chatMessageService.markMessageAsDelivered(that.currentFriendChat.chatWith).subscribe(result => {
+    
+              // });
+          } else {
+            that.audio.play()
+              .then(_ => {
+                // sound effect started
+              }).catch(error => {
+              // empty
+            });
+          }
+          that.isNewMessage.next(chatMessage);
+        });
+      });
+      this.groupsChats.forEach(group => {
 
+        this.wsMessagesService.ws.subscribe('/topic/' + group.id + '.messages',
+        message => {
+          let chatMessage: ChatMessage;
+          chatMessage = JSON.parse(message.body);
+          chatMessage.status = ChatMessagesStatus.delivered;
+          that.groupMessageList.push(chatMessage);
+          if (that.currentGroupChat !== null && chatMessage.recipient === that.currentGroupChat.id.toString()) {
+              // that.chatMessageService.markMessageAsDelivered(that.currentFriendChat.chatWith).subscribe(result => {
+    
+              // });
+          } else {
+            that.audio.play()
+              .then(_ => {
+                // sound effect started
+              }).catch(error => {
+              // empty
+            });
+          }
+          that.isNewMessage.next(chatMessage);
+        });
+
+      })
   }
 
   showFriendRequestComponent() {
@@ -407,31 +454,6 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
     // this.getUserChatProfile();
     this.getUserFriendInfo();
     this.selectedItems = [];
-    const that = this;
-    this.groupsChats.forEach(group => {
-
-      this.wsMessagesService.ws.subscribe('/topic/' + group.id + '.messages',
-      message => {
-        let chatMessage: ChatMessage;
-        chatMessage = JSON.parse(message.body);
-        chatMessage.status = ChatMessagesStatus.delivered;
-        that.groupMessageList.push(chatMessage);
-        if (that.currentGroupChat !== null && chatMessage.recipient === that.currentGroupChat.id.toString()) {
-            // that.chatMessageService.markMessageAsDelivered(that.currentFriendChat.chatWith).subscribe(result => {
-  
-            // });
-        } else {
-          that.audio.play()
-            .then(_ => {
-              // sound effect started
-            }).catch(error => {
-            // empty
-          });
-        }
-        that.isNewMessage.next(chatMessage);
-      });
-
-    })
   }
 
   showAddFriendComponent() {
@@ -506,7 +528,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   createGroup() {
     let groupName = this.groupName.nativeElement.value;
     var members = []
-    if (groupName.length !== 0) {
+    if (groupName.length !== 0 && this.selectedItems.length > 0) {
       this.groupChatService.createGroupChat({groupName: groupName}).subscribe(result => {
         // console.log(this.selectedItems);
         
@@ -522,8 +544,11 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
               "admin": item.item_id.isAdmin});
         })
         // console.log(JSON.stringify(members))
-        this.groupMemberService.addMembers(members).subscribe(result => {
-          console.log(result);
+        this.groupMemberService.addMembers(members).subscribe(result1 => {
+          console.log(result1);
+          // this.selectedItems.forEach(item => {
+          //   this.wsMessagesService.sendNewGroup(item.item_id.id, result.id)
+          // })
         })
         this.wsMessagesService.sendMessage(
           {
@@ -535,12 +560,36 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
           time: new Date().toISOString(),
           type: null
         })
+        const that =  this;
+        this.wsMessagesService.ws.subscribe('/topic/' + result.id + '.messages',
+        message => {
+          let chatMessage: ChatMessage;
+          chatMessage = JSON.parse(message.body);
+          chatMessage.status = ChatMessagesStatus.delivered;
+          that.groupMessageList.push(chatMessage);
+          if (that.currentGroupChat !== null && chatMessage.recipient === that.currentGroupChat.id.toString()) {
+              // that.chatMessageService.markMessageAsDelivered(that.currentFriendChat.chatWith).subscribe(result => {
+    
+              // });
+          } else {
+            that.audio.play()
+              .then(_ => {
+                // sound effect started
+              }).catch(error => {
+              // empty
+            });
+          }
+          that.isNewMessage.next(chatMessage);
+        });
         this.showNotificationMessage('We created group');
       }, errorObject => {
         if (errorObject.status === 404 || errorObject.status === 400 || errorObject.status === 409) {
           this.showNotificationMessage(errorObject.error.detail);
         }
       })
+    }
+    else {
+      this.showNotificationMessage("Can't create");
     }
     // this.onUnSelectAll();
   }
@@ -564,6 +613,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
       console.log(result);
       this.showNotificationMessage("Added");
       this.selectedItems.forEach(item => {
+        // this.wsMessagesService.sendNewGroup(item.item_id.id, this.currentGroupChat.id)
         this.wsMessagesService.sendMessage(
           {
           friendChat: -1,
@@ -583,7 +633,13 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   }
 
   deleteGroupMembers() {
-
+    this.groupMemberService.deleteFriend(this.currentGroupChat.id, this.selectedItems[0].item_id.id).subscribe(result => {
+      this.showNotificationMessage("Deleted member");
+    }, errorObject => {
+      if (errorObject.status === 404 || errorObject.status === 400 || errorObject.status === 409) {
+        this.showNotificationMessage(errorObject.error.detail);
+      }
+    })
   }
 
 
@@ -627,6 +683,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   }
 
   membersAlert() {
+    this.dropdownSettings.limitSelection = 1;
     this.groupMemberService.getGroupMembers(this.currentGroupChat.id).subscribe(result => {
 
       this.dropdownList = [];
@@ -670,6 +727,7 @@ export class DashboardComponent implements OnInit, AfterWebSocketConnected {
   closeMembersGroup() {
     this.showMembersGroup = false;
     this.showAddMembers = false;
+    this.dropdownSettings.limitSelection =  Number.MAX_VALUE;
   }
 
   isAdmin() {

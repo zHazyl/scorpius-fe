@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
@@ -19,5 +19,13 @@ export class GroupMemberService {
     addMembers(members: GroupMember[]) {
         return this.http.post<GroupMember[]>(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource, members)
     }
+
+    deleteFriend(groupId, memberId) {
+        const params = new HttpParams()
+          .set('group_id', groupId)
+          .set('member_id', memberId);
+        return this.http.delete(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource
+          + '?' + params.toString());
+      }
 
 }
