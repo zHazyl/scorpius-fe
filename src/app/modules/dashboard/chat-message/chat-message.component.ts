@@ -38,7 +38,7 @@ export class ChatMessageComponent implements OnInit, AfterViewInit {
   getImage(time) {
     time = time.replace(':','%3A');
     time = time.replace('+00:00', 'Z');
-    let link = 'https://firebasestorage.googleapis.com/v0/b/cool-continuity-368410.appspot.com/o/'+ time + '?alt=media';
+    let link = 'https://firebasestorage.googleapis.com/v0/b/scorpio-storage.appspot.com/o/'+ time + '?alt=media';
     return link;
   }
   getUserName(id: string){
