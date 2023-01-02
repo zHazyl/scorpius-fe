@@ -6,4 +6,5 @@ export class ChatMessage {
   content?: string;
   time?: string;
   status?: string;
+  type?: string;
 }

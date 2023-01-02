@@ -24,6 +24,10 @@ export class WsMessagesService {
   sendMessage(message) {
     return this.ws.send('/app/chat', {}, JSON.stringify(message));
   }
+  
+  sendNewGroup(idMember, idGroup) {
+    return this.ws.send('/topic/' + idMember + '.group', idGroup);
+  }
 
   disconnect() {
     if (this.ws != null) {

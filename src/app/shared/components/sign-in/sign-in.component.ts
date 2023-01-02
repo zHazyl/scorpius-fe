@@ -52,6 +52,7 @@ export class SignInComponent implements OnInit {
           this.showLoginSpinner = false;
           this.login.reset();
           this.password.reset();
+          this.notificationMessage = "Can't login";
           this.notificationMessage = JSON.parse(JSON.stringify(errorResponse)).error.details;
         });
     }
