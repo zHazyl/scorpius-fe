@@ -27,20 +27,12 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     ReactiveFormsModule,
     DashboardModule,
     AngularFireModule.initializeApp({
-      apiKey: "AIzaSyBlpEBlibSE-8HaUmKGyPFmesQvHj7C5D0",
-
-      authDomain: "scorpio-storage.firebaseapp.com",
-    
-      projectId: "scorpio-storage",
-    
-      storageBucket: "scorpio-storage.appspot.com",
-    
-      messagingSenderId: "727812446290",
-    
-      appId: "1:727812446290:web:b7e913b56d72bfde88e78b",
-    
-      measurementId: "G-WN3XMXF9JJ"    
-    
+      apiKey: "AIzaSyCcd6voKLuI4ikKBNX6Gipa2VRWkQXBKRE",
+      authDomain: "scorpio-store-38761.firebaseapp.com",
+      projectId: "scorpio-store-38761",
+      storageBucket: "scorpio-store-38761.appspot.com",
+      messagingSenderId: "939378835082",
+      appId: "1:939378835082:web:4c7eda5dafd1509901b773"
     }),
     AngularFireStorageModule,
     NgMultiSelectDropDownModule
