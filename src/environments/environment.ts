@@ -4,16 +4,17 @@
 
 export const environment = {
   production: false,
-  baseApiUrl: 'http://localhost:8080',
-  websocketBaseUrl: 'ws://localhost:8080',
+  baseApiUrl: 'http://134.209.250.111:8080',
+  websocketBaseUrl: 'ws://134.209.250.111:8080',
   authServiceResource: '/auth-service',
-  chatServiceResource: '/chat-service',
+  friendServiceResource: '/friend-service',
+  groupServiceResource: '/group-service',
   chatMessagesServiceResource: '/chat-messages-service',
   websocketMessageServiceResource: '/messages-websocket-service'
 };
 
-export const baseUrl = 'http://localhost:8080';
-export const wsBaseUrl = 'ws://localhost:8080';
+export const baseUrl = 'http://134.209.250.111:8080';
+export const wsBaseUrl = 'ws://134.209.250.111:8080';
 
 /*
  * For easier debugging in development mode, you can import the following file

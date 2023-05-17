@@ -14,11 +14,11 @@ export class GroupChatService {
 
 
   getGroupsChats() {
-    return this.http.get<GroupChat[]>(environment.baseApiUrl + environment.chatServiceResource + this.groupChatResource);
+    return this.http.get<GroupChat[]>(environment.baseApiUrl + environment.groupServiceResource + this.groupChatResource);
   }
 
   createGroupChat(group: GroupChat) : Observable<any> {
-    return this.http.post(environment.baseApiUrl + environment.chatServiceResource + this.groupChatResource, {
+    return this.http.post(environment.baseApiUrl + environment.groupServiceResource + this.groupChatResource, {
       "groupName": group.groupName
     });
   }

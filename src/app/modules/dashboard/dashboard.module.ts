@@ -31,6 +31,9 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     RouterModule,
     ReactiveFormsModule,
     NgMultiSelectDropDownModule
+  ],
+  exports: [
+    ChatMessageComponent
   ]
 })
 export class DashboardModule {

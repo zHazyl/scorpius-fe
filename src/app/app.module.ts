@@ -12,6 +12,7 @@ import {TokenInterceptor} from './shared/helpers/token.interceptor';
 import { AngularFireStorageModule } from 'angularfire2/storage'
 import { AngularFireModule } from 'angularfire2';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { GlobalChatModule } from './modules/global-chat/global.module';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     FormsModule,
     ReactiveFormsModule,
     DashboardModule,
+    GlobalChatModule,
     AngularFireModule.initializeApp({
       apiKey: "AIzaSyCcd6voKLuI4ikKBNX6Gipa2VRWkQXBKRE",
       authDomain: "scorpio-store-38761.firebaseapp.com",

@@ -13,18 +13,18 @@ export class GroupMemberService {
     }
 
     getGroupMembers(id: number) : Observable<any> {
-        return this.http.get(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource + '/' + id);
+        return this.http.get(environment.baseApiUrl + environment.groupServiceResource + this.groupMemberResource + '/' + id);
     }
 
     addMembers(members: GroupMember[]) {
-        return this.http.post<GroupMember[]>(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource, members)
+        return this.http.post<GroupMember[]>(environment.baseApiUrl + environment.groupServiceResource + this.groupMemberResource, members)
     }
 
     deleteFriend(groupId, memberId) {
         const params = new HttpParams()
           .set('group_id', groupId)
           .set('member_id', memberId);
-        return this.http.delete(environment.baseApiUrl + environment.chatServiceResource + this.groupMemberResource
+        return this.http.delete(environment.baseApiUrl + environment.groupServiceResource + this.groupMemberResource
           + '?' + params.toString());
       }
 

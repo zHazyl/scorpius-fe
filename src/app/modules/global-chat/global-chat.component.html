@@ -1,0 +1,72 @@
+<div class="container fill">
+    <div class="row fill shadow-lg p-3 mb-5 bg-white rounded">
+        <div class="col-sm-12 chat-box-right">
+            <div style="height: 7%;">
+                <div class="row chat-current-person-container">
+                <div class="col-1 m-auto text-left">
+                    <img src="scorpio.png" alt="">
+                </div>
+                <div class="col-9 m-auto text-left">
+                    <span class="chat-current-person-text">
+                        Scogal
+                    </span>
+                </div>
+                <div class="col-2 m-auto text-right">
+                    <div class="btn-group dropleft">
+                    <input class="dropdown-toggle nav-button" id="dropdownMenuButton" type="image"
+                            src="/assets/img/more.svg"
+                            alt=""
+                            style="max-width: 35px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <!-- <button class="dropdown-item" (click)="membersAlert()">Members</button>
+                        <button class="dropdown-item" (click)="addMembersAlert()">Add Members</button> -->
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="row" style="height: 73%">
+                <div class="col-sm-12 messages-container" #groupMessageContainer (scroll)="onScrollMessages($event)">
+                <div class="h-100">
+                    <div class="h-100" *ngIf="globalMessageList.length === 0">
+                    <div class="row h-100">
+                        <div class="col-12 text-center m-auto w-50">
+                        <img src="/assets/img/no_message.svg" alt="" style="max-width: 50%;">
+                        <br>
+                        <span>Not found any message</span>
+                        </div>
+                    </div>
+                    </div>
+                    <div *ngIf="globalMessageList.length !== 0">
+                    <div *ngFor="let message of globalMessageList">
+                        <app-chat-message [message]="message"
+                        (afterRenderMessage)="scrollChatMessage()" 
+                                        #appGlobalMessage></app-chat-message>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="row" style="height: 20%">
+                <div class="col-sm-12 h-100">
+                <div class="row h-100 m-0" style="padding: 10px;">
+                    <label>
+                    <img src="/assets/img/image.png" style="width: 25px;">
+                    <input #myImg type="file" style="display: none;" (change)="upload($event)" accept="*.png.jpg">
+                    </label>
+                    <div class="input-group mb-3">
+                    <textarea class="form-control input-message h-100 send-message-textarea"
+                            placeholder="Type a message"
+                            aria-label="Type a message" aria-describedby="basic-addon2" #inputMessage
+                            (keyup.enter)="sentMessage()"></textarea>
+                    <div class="input-group-append">
+                        <input type="image" class="btn btn-outline-primary send-button" src="/assets/img/send.svg" width="50"
+                                (click)="sentMessage()">
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -18,27 +18,31 @@ export class ChatMessageComponent implements OnInit, AfterViewInit {
 
   @Output()
   afterRenderMessage: EventEmitter<any> = new EventEmitter<any>();
-  
+
   name: string;
 
   constructor(private authService: AuthService,
     private af: AngularFireStorage,
     private userService: UserService) {
-    this.currentUserId = authService.currentUserValue.id;
   }
 
   ngOnInit(): void {
+    if (this.message.sender !== 'anonymus') {
+      this.currentUserId = this.authService.currentUserValue.id;
+    }
   }
 
   ngAfterViewInit(): void {
-    this.afterRenderMessage.emit();
-    this.getUserName(this.message.sender);
+    // this.afterRenderMessage.emit();
+    if (this.message.sender !== 'anonymus') {
+      this.getUserName(this.message.sender);
+    }
   }
 
   getImage(time) {
     time = time.replace(':','%3A');
     time = time.replace('+00:00', 'Z');
-    let link = 'https://firebasestorage.googleapis.com/v0/b/scorpio-storage.appspot.com/o/'+ time + '?alt=media';
+    let link = 'https://firebasestorage.googleapis.com/v0/b/scorpio-store-38761.appspot.com/o/'+ time + '?alt=media';
     return link;
   }
   getUserName(id: string){

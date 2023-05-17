@@ -13,14 +13,14 @@ export class FriendChatService {
 
 
   getFriendsChats() {
-    return this.http.get<FriendChat[]>(environment.baseApiUrl + environment.chatServiceResource + this.friendChatResource);
+    return this.http.get<FriendChat[]>(environment.baseApiUrl + environment.friendServiceResource + this.friendChatResource);
   }
 
   deleteFriend(chatFriendId, chatFriendWithId) {
     const params = new HttpParams()
       .set('friend_chat', chatFriendId)
       .set('friend_chat_with', chatFriendWithId);
-    return this.http.delete(environment.baseApiUrl + environment.chatServiceResource + this.friendChatResource
+    return this.http.delete(environment.baseApiUrl + environment.friendServiceResource + this.friendChatResource
       + '?' + params.toString());
   }
 

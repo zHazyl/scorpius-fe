@@ -13,11 +13,11 @@ export class ChatProfileService {
   }
 
   getChatProfile(userId: string) {
-    return this.http.get<ChatProfile>(environment.baseApiUrl + environment.chatServiceResource + this.chatProfileResource + '/' + userId);
+    return this.http.get<ChatProfile>(environment.baseApiUrl + environment.friendServiceResource + this.chatProfileResource + '/' + userId);
   }
 
   generateNewFriendsCode(userId: string) {
-    return this.http.patch<ChatProfile>(environment.baseApiUrl + environment.chatServiceResource +
+    return this.http.patch<ChatProfile>(environment.baseApiUrl + environment.friendServiceResource +
       this.chatProfileResource + '/' + userId + '/new-friends-request-code', {});
   }
 

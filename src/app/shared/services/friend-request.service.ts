@@ -14,29 +14,29 @@ export class FriendRequestService {
 
   getReceivedFriendRequests() {
     return this.http
-      .get<FriendRequest[]>(environment.baseApiUrl + environment.chatServiceResource + this.friendRequestResource + '/received');
+      .get<FriendRequest[]>(environment.baseApiUrl + environment.friendServiceResource + this.friendRequestResource + '/received');
   }
 
   getSentFriendRequests() {
     return this.http
-      .get<FriendRequest[]>(environment.baseApiUrl + environment.chatServiceResource + this.friendRequestResource + '/sent');
+      .get<FriendRequest[]>(environment.baseApiUrl + environment.friendServiceResource + this.friendRequestResource + '/sent');
   }
 
   postCreateNewFriendRequest(invitationCode) {
     const params = new HttpParams().set('invite_code', invitationCode);
-    return this.http.post<FriendRequest>(environment.baseApiUrl + environment.chatServiceResource +
+    return this.http.post<FriendRequest>(environment.baseApiUrl + environment.friendServiceResource +
       this.friendRequestResource + '?' + params.toString(), {});
   }
 
   replyToFriendsRequest(id, accept) {
     const params = new HttpParams().set('accept', accept);
-    return this.http.patch(environment.baseApiUrl + environment.chatServiceResource +
+    return this.http.patch(environment.baseApiUrl + environment.friendServiceResource +
       this.friendRequestResource + '/' + id + '?' + params.toString(), {});
   }
 
 
   cancelSentFriendRequest(id) {
-    return this.http.delete(environment.baseApiUrl + environment.chatServiceResource + this.friendRequestResource +
+    return this.http.delete(environment.baseApiUrl + environment.friendServiceResource + this.friendRequestResource +
       '/' + id);
   }
 
